@@ -1,0 +1,38 @@
+# Build directories
+bin/
+obj/
+
+# Object files
+*.o
+*.obj
+
+# Static libraries
+*.a
+*.lib
+
+# Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# CMake (if used)
+CMakeFiles/
+cmake_build_directories/

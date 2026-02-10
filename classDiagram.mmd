@@ -1,0 +1,173 @@
+classDiagram
+    %% Abstract Base Class
+    class LibraryItem {
+        <<abstract>>
+        #string itemId
+        #string title
+        #string author
+        #int publicationYear
+        #bool isAvailable
+        #double lateFeePerDay
+        +LibraryItem(id, title, author, year)
+        +virtual ~LibraryItem()
+        +displayInfo()* void
+        +calculateLateFee(daysLate)* double
+        +getItemType()* string
+        +checkAvailability() bool
+        +setAvailability(status) void
+        +getters/setters()
+    }
+
+    %% Derived Classes from LibraryItem
+    class Book {
+        -string isbn
+        -int numPages
+        -string genre
+        -bool isHardcover
+        +Book(...)
+        +displayInfo() void
+        +calculateLateFee(daysLate) double
+        +getItemType() string
+    }
+
+    class Magazine {
+        -int issueNumber
+        -string month
+        -string publisher
+        +Magazine(...)
+        +displayInfo() void
+        +calculateLateFee(daysLate) double
+        +getItemType() string
+    }
+
+    class EducationalVideo {
+        -int durationMinutes
+        -string resolution
+        -string subject
+        -string language
+        +EducationalVideo(...)
+        +displayInfo() void
+        +calculateLateFee(daysLate) double
+        +getItemType() string
+    }
+
+    %% User Classes
+    class User {
+        -string userId
+        -string name
+        -string email
+        -string phoneNumber
+        -vector~Transaction*~ borrowHistory
+        -int maxBorrowLimit
+        -double totalFines
+        +User(id, name, email, phone, limit=5)
+        +User(const User&)
+        +~User()
+        +canBorrow() bool
+        +addTransaction(trans) void
+        +payFine(amount) void
+        +displayUserInfo() void
+        +getCurrentBorrowCount() int
+    }
+
+    class StudentUser {
+        -string studentId
+        -string major
+        -int yearOfStudy
+        +StudentUser(...)
+        +getDiscountRate() double
+    }
+
+    class FacultyUser {
+        -string department
+        -string position
+        +FacultyUser(...)
+        +getDiscountRate() double
+    }
+
+    %% Transaction Class
+    class Transaction {
+        -string transactionId
+        -User* borrower
+        -LibraryItem* item
+        -time_t borrowDate
+        -time_t dueDate
+        -time_t returnDate
+        -double fineAmount
+        +Transaction(id, user, item, days)
+        +processReturn() void
+        +isOverdue() bool
+        +getDaysOverdue() int
+        +calculateFine() void
+        +displayTransactionInfo() void
+    }
+
+    %% Library Singleton
+    class Library {
+        <<singleton>>
+        -static Library* instance
+        -vector~LibraryItem*~ items
+        -vector~User*~ users
+        -vector~Transaction*~ transactions
+        -Library()
+        +static getInstance() Library*
+        +addItem(item) void
+        +addUser(user) void
+        +searchItemById(id) LibraryItem*
+        +searchUserById(id) User*
+        +borrowItem(userId, itemId, days) Transaction*
+        +returnItem(transactionId) bool
+        +displayAllItems() void
+        +displayAllUsers() void
+        +displayOverdueTransactions() void
+        +searchByTitle(keyword) vector~LibraryItem*~
+        +searchByAuthor(author) vector~LibraryItem*~
+        +~Library()
+    }
+
+    %% Exception Classes
+    class LibraryException {
+        -string message
+        +LibraryException(msg)
+        +what() string
+    }
+
+    class ItemNotFoundException {
+        +ItemNotFoundException(msg)
+    }
+
+    class UserNotFoundException {
+        +UserNotFoundException(msg)
+    }
+
+    class ItemNotAvailableException {
+        +ItemNotAvailableException(msg)
+    }
+
+    class BorrowLimitExceededException {
+        +BorrowLimitExceededException(msg)
+    }
+
+    %% Relationships - Inheritance
+    LibraryItem <|-- Book : inherits
+    LibraryItem <|-- Magazine : inherits
+    LibraryItem <|-- EducationalVideo : inherits
+    User <|-- StudentUser : inherits
+    User <|-- FacultyUser : inherits
+    LibraryException <|-- ItemNotFoundException : inherits
+    LibraryException <|-- UserNotFoundException : inherits
+    LibraryException <|-- ItemNotAvailableException : inherits
+    LibraryException <|-- BorrowLimitExceededException : inherits
+
+    %% Relationships - Association/Aggregation
+    Transaction o-- User : references
+    Transaction o-- LibraryItem : references
+    User "1" *-- "0..*" Transaction : has history
+    Library "1" *-- "0..*" LibraryItem : contains
+    Library "1" *-- "0..*" User : manages
+    Library "1" *-- "0..*" Transaction : tracks
+
+    %% Notes
+    note for LibraryItem "Abstract base class with\npure virtual functions"
+    note for Library "Singleton Pattern:\nOnly one instance exists"
+    note for Transaction "Manages borrowing\nand return process"
